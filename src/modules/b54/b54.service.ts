@@ -97,7 +97,7 @@ export class B54Service {
     try {
       let { data } = await this.axiosInstance.post(
         `draw-downs/customer-partner/${this.customerPartnerId}/request`,
-        drawdownRequestPayload
+        drawdownRequestPayload,
       );
       return { success: true, message: data?.message, data: data.data };
     } catch (error) {
@@ -108,7 +108,18 @@ export class B54Service {
   async fetchActiveDrawdown() {
     try {
       let { data } = await this.axiosInstance.get(
-        `draw-downs/customer-partner/${this.customerPartnerId}/active`
+        `draw-downs/customer-partner/${this.customerPartnerId}/active`,
+      );
+      return { success: true, message: data?.message, data: data.data };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message };
+    }
+  }
+
+  async listBanks(country = 'nigeria', page = 1000) {
+    try {
+      let { data } = await this.axiosInstance.get(
+        `banks/${country}/${page}`,
       );
       return { success: true, message: data?.message, data: data.data };
     } catch (error) {

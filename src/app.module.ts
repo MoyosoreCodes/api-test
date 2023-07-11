@@ -6,13 +6,15 @@ import { TypeOrmConfigService } from './config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule } from './modules/clients/clients.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { B54Module } from './modules/b54/b54.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     ClientsModule,
-    TransactionsModule
+    TransactionsModule,
+    B54Module
   ],
   controllers: [AppController],
   providers: [AppService],

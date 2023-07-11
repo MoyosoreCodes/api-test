@@ -22,67 +22,60 @@ export class B54Service {
 
   async registerTransaction(transactions) {
     try {
-      const {status, data} = await this.axiosInstance.post(
+      const { data } = await this.axiosInstance.post(
         `transactions/register`,
         transactions,
       );
-      console.log({status, data})
-      return {status, data};
+      return { success: true, message: data?.message, data: data.data };
     } catch (error) {
-      console.log(error);
+      return { success: false, message: error?.response?.data?.message };
     }
   }
 
   async registerClient(client) {
     try {
-      const {status, data} = await this.axiosInstance.post(
+      const { data } = await this.axiosInstance.post(
         `customer_partners/${this.customerPartnerId}/customers`,
         client,
       );
-      // return { status, data };
-      return {success: true, message: data?.message, data: data.data}
+      return { success: true, message: data?.message, data: data.data };
     } catch (error) {
-      return {success: false, message: error?.response?.data?.message}
+      return { success: false, message: error?.response?.data?.message };
     }
   }
 
   async fetchClients() {
     try {
-      const response = await this.axiosInstance.get(
+      const { data } = await this.axiosInstance.get(
         `customer_partners/${this.customerPartnerId}/customers`,
       );
-
-      console.log(response);
-      return response;
+      return { success: true, message: data?.message, data: data.data };
     } catch (error) {
-      console.log(error);
+      return { success: false, message: error?.response?.data?.message };
     }
   }
 
   async bulkPayments(payments) {
     try {
-      const response = await this.axiosInstance.post(
+      const { data } = await this.axiosInstance.post(
         `/financing/bulk-payment`,
         payments,
       );
-      console.log(response);
-      return response;
+      return { success: true, message: data?.message, data: data.data };
     } catch (error) {
-      console.log(error);
+      return { success: false, message: error?.response?.data?.message };
     }
   }
 
   async lockboxWithdrawal(payload) {
     try {
-      let response = await this.axiosInstance.post(
+      let { data } = await this.axiosInstance.post(
         `/baas/customer-partner/${this.customerPartnerId}/withdraw`,
         payload,
       );
-      console.log(response);
-      return response;
+      return { success: true, message: data?.message, data: data.data };
     } catch (error) {
-      console.log(error);
-      return error;
+      return { success: false, message: error?.response?.data?.message };
     }
   }
 }

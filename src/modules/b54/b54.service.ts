@@ -1,0 +1,88 @@
+import { Injectable } from '@nestjs/common';
+import axios, { AxiosInstance } from 'axios';
+
+@Injectable()
+export class B54Service {
+  protected readonly customerPartnerId: string;
+  protected readonly axiosInstance: AxiosInstance;
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: process.env.B54_API,
+      headers: {
+        Authorization: process.env.B54_API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+    this.customerPartnerId = process.env.B54_CUSTOMER_PARTNER_ID;
+  }
+
+  getCustomerPartnerId() {
+    return this.customerPartnerId;
+  }
+
+  async registerTransaction(transactions) {
+    try {
+      const {status, data} = await this.axiosInstance.post(
+        `transactions/register`,
+        transactions,
+      );
+      console.log({status, data})
+      return {status, data};
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async registerClient(client) {
+    try {
+      const {status, data} = await this.axiosInstance.post(
+        `customer_partners/${this.customerPartnerId}/customers`,
+        client,
+      );
+      // return { status, data };
+      return {success: true, message: data?.message, data: data.data}
+    } catch (error) {
+      return {success: false, message: error?.response?.data?.message}
+    }
+  }
+
+  async fetchClients() {
+    try {
+      const response = await this.axiosInstance.get(
+        `customer_partners/${this.customerPartnerId}/customers`,
+      );
+
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async bulkPayments(payments) {
+    try {
+      const response = await this.axiosInstance.post(
+        `/financing/bulk-payment`,
+        payments,
+      );
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async lockboxWithdrawal(payload) {
+    try {
+      let response = await this.axiosInstance.post(
+        `/baas/customer-partner/${this.customerPartnerId}/withdraw`,
+        payload,
+      );
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+}

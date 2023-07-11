@@ -89,4 +89,30 @@ export class B54Service {
       return { success: false, message: error?.response?.data?.message };
     }
   }
+
+  async requestDrawdown(drawdownRequestPayload: {
+    amount: number;
+    tenor: number;
+  }) {
+    try {
+      let { data } = await this.axiosInstance.post(
+        `draw-downs/customer-partner/${this.customerPartnerId}/request`,
+        drawdownRequestPayload
+      );
+      return { success: true, message: data?.message, data: data.data };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message };
+    }
+  }
+
+  async fetchActiveDrawdown() {
+    try {
+      let { data } = await this.axiosInstance.get(
+        `draw-downs/customer-partner/${this.customerPartnerId}/active`
+      );
+      return { success: true, message: data?.message, data: data.data };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message };
+    }
+  }
 }

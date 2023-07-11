@@ -11,7 +11,6 @@ export class ClientsService {
     private clientRepository: Repository<Client>,
   ) {}
   create(client: ICreateClient) {
-    // return 'This action adds a new client';
     const newClient = this.clientRepository.create(client);
     return this.clientRepository.save(newClient);
   }

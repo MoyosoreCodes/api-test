@@ -58,7 +58,7 @@ export class B54Service {
   async bulkPayments(payments) {
     try {
       const { data } = await this.axiosInstance.post(
-        `/financing/bulk-payment`,
+        `financing/bulk-payment`,
         payments,
       );
       return { success: true, message: data?.message, data: data.data };
@@ -70,8 +70,19 @@ export class B54Service {
   async lockboxWithdrawal(payload) {
     try {
       let { data } = await this.axiosInstance.post(
-        `/baas/customer-partner/${this.customerPartnerId}/withdraw`,
+        `baas/customer-partner/${this.customerPartnerId}/withdraw`,
         payload,
+      );
+      return { success: true, message: data?.message, data: data.data };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message };
+    }
+  }
+
+  async fetchCurrentCreditLimit() {
+    try {
+      let { data } = await this.axiosInstance.get(
+        `customer-partner/${this.customerPartnerId}/credit-limit/current`,
       );
       return { success: true, message: data?.message, data: data.data };
     } catch (error) {

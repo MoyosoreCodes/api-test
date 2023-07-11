@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto';
 import { B54Service } from '../b54/b54.service';
@@ -11,7 +11,7 @@ export class ClientsController {
   ) {}
 
   @Post()
-  async create(@Body() createClientDto: CreateClientDto) {
+  async registerCustomer(@Body() createClientDto: CreateClientDto) {
     const { id_type, id_value, client_type } = createClientDto;
 
     const result = await this.b54Service.registerClient({
@@ -29,5 +29,10 @@ export class ClientsController {
       if (!existingClient) this.clientsService.create(createClientDto);
     }
     return result;
+  }
+
+  @Get()
+  async fetchAllCustomers() {
+    return await this.b54Service.fetchClients();
   }
 }

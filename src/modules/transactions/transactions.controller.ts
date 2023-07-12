@@ -17,6 +17,7 @@ import { Client } from 'src/entities/clients.entity';
 import { ClientType } from '../clients/dto';
 import * as randomstring from 'randomstring';
 import { addDays, format } from 'date-fns';
+import { PaymentsService } from '../payments/payments.service';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -24,6 +25,7 @@ export class TransactionsController {
     private readonly transactionsService: TransactionsService,
     private readonly b54Service: B54Service,
     private readonly clientService: ClientsService,
+    private readonly paymentService: PaymentsService,
   ) {}
 
   @Post('/drawdown-requests')
@@ -50,7 +52,6 @@ export class TransactionsController {
     const { data } = await this.b54Service.listBanks();
     const userBank = data.find((bank) => bank?.code === bank_code);
 
-    // return {userBank, amount}
     return await this.b54Service.lockboxWithdrawal({
       name: userBank?.name,
       amount,
@@ -68,13 +69,17 @@ export class TransactionsController {
   @Post('/register')
   async registerTransactions() {
     const clients: Client[] = await this.clientService.findAll();
-    const activeDrawdown  = await this.b54Service.fetchActiveDrawdown()
+    const activeDrawdown = await this.b54Service.fetchActiveDrawdown();
     let transactions = [];
     let financed_transactions = [];
     const amountDrawn = activeDrawdown.data?.amount_drawn;
+    const disbursement_date = new Date(activeDrawdown.data?.disbursement_date);
+    const maturity_date = new Date(activeDrawdown.data?.maturity_date);
+    const amount_disbursed = Number((amountDrawn * 0.5).toFixed(2));
+    const amount_expected = Number((amountDrawn * 0.7).toFixed(2));
+    const paymentAmount = Number((amountDrawn * 0.35).toFixed(2));
 
     for (let client of clients) {
-      let today = new Date();
       let transaction_reference = randomstring.generate({
         length: 16,
         charset: 'alphanumeric',
@@ -82,27 +87,27 @@ export class TransactionsController {
       let transactionObj = {
         client: {},
         transaction_reference,
-        disbursement_date: today,
-        expected_payment_date: addDays(today, 7),
+        disbursement_date,
+        expected_payment_date: maturity_date,
         reason: 'Loan',
-        amount_payable: Number((amountDrawn * 0.7).toFixed(2)),
+        amount_payable: amount_expected,
         financier: 'B54',
       };
 
       let financedTransactionsObj = {
         transaction_reference,
-        amount: Number((amountDrawn * 0.5).toFixed(2)),
+        amount: 500,
         drawdown_id: activeDrawdown.data?.id,
         payments: [
           {
-            disbursement_date: today,
-            expected_payment_date: addDays(today, 7),
-            amount: Number((amountDrawn * 0.35).toFixed(2)),
+            disbursement_date,
+            expected_payment_date: maturity_date,
+            amount: paymentAmount,
           },
           {
-            disbursement_date: today,
-            expected_payment_date: addDays(today, 7),
-            amount: Number((amountDrawn * 0.35).toFixed(2)),
+            disbursement_date,
+            expected_payment_date: maturity_date,
+            amount: paymentAmount,
           },
         ],
       };
@@ -126,12 +131,37 @@ export class TransactionsController {
 
       transactions.push(transactionObj);
       financed_transactions.push(financedTransactionsObj);
+      const newTransaction = this.transactionsService.create({
+        client,
+        reference: transaction_reference,
+        transaction_date: disbursement_date,
+        amount_disbursed,
+        expected_payment_date: maturity_date,
+        number_of_installments: financedTransactionsObj.payments.length,
+        amount_expected: amount_expected,
+      });
+
+      this.paymentService.create({
+        transaction: newTransaction,
+        transaction_reference,
+        amount_paid: 0,
+        status: 'pending',
+        amount_expected: paymentAmount,
+      });
     }
 
     return await this.b54Service.registerTransactions(
       transactions,
       financed_transactions,
     );
+  }
+
+  @Post('/repayments')
+  async bulkRepayments() {}
+
+  @Get()
+  async fetchTransactions() {
+    return await this.b54Service.fetchTransactions();
   }
 
   @Post('/webhooks')

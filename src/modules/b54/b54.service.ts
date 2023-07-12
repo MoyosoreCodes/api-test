@@ -25,8 +25,8 @@ export class B54Service {
       const payload = {
         customer_partner_id: this.customerPartnerId,
         transactions,
-        financed_transactions
-      }
+        financed_transactions,
+      };
       const { data } = await this.axiosInstance.post(
         `transactions/register`,
         payload,
@@ -60,7 +60,7 @@ export class B54Service {
     }
   }
 
-  async bulkPayments(payments) {
+  async bulkRepayments(payments) {
     try {
       const { data } = await this.axiosInstance.post(
         `financing/bulk-payment`,
@@ -123,8 +123,17 @@ export class B54Service {
 
   async listBanks(country = 'nigeria', page = 1000) {
     try {
+      let { data } = await this.axiosInstance.get(`banks/${country}/${page}`);
+      return { success: true, message: data?.message, data: data.data };
+    } catch (error) {
+      return { success: false, message: error?.response?.data?.message };
+    }
+  }
+
+  async fetchTransactions() {
+    try {
       let { data } = await this.axiosInstance.get(
-        `banks/${country}/${page}`,
+        `customer-partner/${this.customerPartnerId}/transactions/financings`,
       );
       return { success: true, message: data?.message, data: data.data };
     } catch (error) {

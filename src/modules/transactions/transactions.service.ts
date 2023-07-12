@@ -11,8 +11,8 @@ export class TransactionsService {
     private transactionRepository: Repository<Transaction>,
   ) {}
   create(transaction: ITransaction) {
-    const newClient = this.transactionRepository.create(transaction);
-    return this.transactionRepository.save(newClient);
+    const newTransaction = this.transactionRepository.create(transaction);
+    return this.transactionRepository.save(newTransaction);
   }
 
   generateInterest(principal, interestRate, duration, interestType = 'simple') {

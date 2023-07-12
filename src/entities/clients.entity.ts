@@ -11,7 +11,6 @@ import {
 import { AbstractEntity } from './abstract.entity';
 import { Transaction } from './transactions.entity';
 // import { PaymentAccount } from './payment_accounts.entity';
-import { TransferHistory } from './transfer_histories.entity';
 import { ClientType, Type } from 'src/modules/clients/dto';
 
 @Entity({ name: 'clients' })
@@ -42,9 +41,6 @@ export class Client extends AbstractEntity {
 
   @OneToMany(() => Transaction, (transaction) => transaction.client)
   transactions: Transaction[];
-
-  @OneToMany(() => TransferHistory, (transferHistory) => transferHistory.client)
-  transfer_histories: TransferHistory[];
 
   @Column({ enum: ClientType, nullable: false })
   client_type: ClientType;

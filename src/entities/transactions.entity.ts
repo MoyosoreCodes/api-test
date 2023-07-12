@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { Client } from './clients.entity';
 import { Payment } from './payments.entity';
-import { TransferHistory } from './transfer_histories.entity';
 import { AbstractEntity } from './abstract.entity';
 
 @Entity({ name: 'transactions' })
@@ -32,35 +31,35 @@ export class Transaction extends AbstractEntity {
   })
   amount_disbursed: number;
 
-  @Column({
-    type: 'numeric',
-    precision: 10,
-    scale: 2,
-  })
-  interest_rate: number;
+  // @Column({
+  //   type: 'numeric',
+  //   precision: 10,
+  //   scale: 2,
+  // })
+  // interest_rate: number;
 
-  @Column()
-  tenor: number;
+  // @Column()
+  // tenor: number;
 
-  @Column({
-    type: 'numeric',
-    precision: 10,
-    scale: 2,
-  })
-  amount_paid: number;
+  // @Column({
+  //   type: 'numeric',
+  //   precision: 10,
+  //   scale: 2,
+  // })
+  // amount_paid: number;
 
-  @Column({
-    type: 'numeric',
-    precision: 10,
-    scale: 2,
-  })
-  amount_outstanding: number;
+  // @Column({
+  //   type: 'numeric',
+  //   precision: 10,
+  //   scale: 2,
+  // })
+  // amount_outstanding: number;
 
   @Column({ type: 'timestamp' })
   expected_payment_date: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  actual_payment_date: Date;
+  // @Column({ type: 'timestamp', nullable: true })
+  // actual_payment_date: Date;
 
   @Column()
   number_of_installments: number;
@@ -71,9 +70,9 @@ export class Transaction extends AbstractEntity {
   @OneToMany(() => Payment, (payment) => payment.transaction)
   payments: Payment[];
 
-  @OneToMany(
-    () => TransferHistory,
-    (transferHistory) => transferHistory.transaction,
-  )
-  transfer_histories: TransferHistory[];
+  // @OneToMany(
+  //   () => TransferHistory,
+  //   (transferHistory) => transferHistory.transaction,
+  // )
+  // transfer_histories: TransferHistory[];
 }

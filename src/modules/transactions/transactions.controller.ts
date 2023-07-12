@@ -71,6 +71,7 @@ export class TransactionsController {
     const activeDrawdown  = await this.b54Service.fetchActiveDrawdown()
     let transactions = [];
     let financed_transactions = [];
+    const amountDrawn = activeDrawdown.data?.amount_drawn;
 
     for (let client of clients) {
       let today = new Date();
@@ -84,24 +85,24 @@ export class TransactionsController {
         disbursement_date: today,
         expected_payment_date: addDays(today, 7),
         reason: 'Loan',
-        amount_payable: 700,
+        amount_payable: amountDrawn * 0.7,
         financier: 'B54',
       };
 
       let financedTransactionsObj = {
         transaction_reference,
-        amount: 500,
+        amount: amountDrawn * 0.5,
         drawdown_id: activeDrawdown.data?.id,
         payments: [
           {
             disbursement_date: today,
             expected_payment_date: addDays(today, 7),
-            amount: 350,
+            amount: amountDrawn * 0.5 * 0.7,
           },
           {
             disbursement_date: today,
             expected_payment_date: addDays(today, 7),
-            amount: 350,
+            amount: amountDrawn * 0.5 * 0.7,
           },
         ],
       };

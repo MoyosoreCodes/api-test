@@ -9,5 +9,6 @@ import { B54Module } from '../b54/b54.module';
   imports: [TypeOrmModule.forFeature([Client]), B54Module],
   controllers: [ClientsController],
   providers: [ClientsService],
+  exports: [ClientsService],
 })
 export class ClientsModule {}

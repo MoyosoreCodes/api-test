@@ -17,6 +17,10 @@ export class RequestDrawdown {
   tenor: number;
 }
 
+export interface ITransaction {
+    
+}
+
 export enum LockboxWithdrawalTypes {
   BANK = 'bank',
   MOMO = 'mobile-money',

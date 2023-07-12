@@ -20,11 +20,16 @@ export class B54Service {
     return this.customerPartnerId;
   }
 
-  async registerTransaction(transactions) {
+  async registerTransactions(transactions, financed_transactions) {
     try {
+      const payload = {
+        customer_partner_id: this.customerPartnerId,
+        transactions,
+        financed_transactions
+      }
       const { data } = await this.axiosInstance.post(
         `transactions/register`,
-        transactions,
+        payload,
       );
       return { success: true, message: data?.message, data: data.data };
     } catch (error) {

@@ -12,12 +12,18 @@ import {
 import { TransactionsService } from './transactions.service';
 import { B54Service } from '../b54/b54.service';
 import { LockboxWithdrawal, RequestDrawdown } from './dto';
+import { ClientsService } from '../clients/clients.service';
+import { Client } from 'src/entities/clients.entity';
+import { ClientType } from '../clients/dto';
+import * as randomstring from 'randomstring';
+import { addDays, format } from 'date-fns';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(
     private readonly transactionsService: TransactionsService,
     private readonly b54Service: B54Service,
+    private readonly clientService: ClientsService,
   ) {}
 
   @Post('/drawdown-requests')
@@ -59,15 +65,77 @@ export class TransactionsController {
     return this.b54Service.listBanks();
   }
 
+  @Post('/register')
+  async registerTransactions() {
+    const clients: Client[] = await this.clientService.findAll();
+    const activeDrawdown  = await this.b54Service.fetchActiveDrawdown()
+    let transactions = [];
+    let financed_transactions = [];
+
+    for (let client of clients) {
+      let today = new Date();
+      let transaction_reference = randomstring.generate({
+        length: 16,
+        charset: 'alphanumeric',
+      });
+      let transactionObj = {
+        client: {},
+        transaction_reference,
+        disbursement_date: today,
+        expected_payment_date: addDays(today, 7),
+        reason: 'Loan',
+        amount_payable: 700,
+        financier: 'B54',
+      };
+
+      let financedTransactionsObj = {
+        transaction_reference,
+        amount: 500,
+        drawdown_id: activeDrawdown.data?.id,
+        payments: [
+          {
+            disbursement_date: today,
+            expected_payment_date: addDays(today, 7),
+            amount: 350,
+          },
+          {
+            disbursement_date: today,
+            expected_payment_date: addDays(today, 7),
+            amount: 350,
+          },
+        ],
+      };
+
+      if (client.client_type === ClientType.BUSINESS) {
+        transactionObj.client = {
+          business_name: client.business_name,
+          contact_number: client.contact_number,
+          id_type: 'rc_number',
+          id_value: client.rc_number,
+        };
+      } else if (client.client_type === ClientType.INDIVIDUAL) {
+        transactionObj.client = {
+          first_name: client.first_name,
+          last_name: client.last_name,
+          contact_number: client.contact_number,
+          id_type: client.id_type,
+          id_value: client.id_value,
+        };
+      }
+
+      transactions.push(transactionObj);
+      financed_transactions.push(financedTransactionsObj);
+    }
+
+    return await this.b54Service.registerTransactions(
+      transactions,
+      financed_transactions,
+    );
+  }
+
   @Post('/webhooks')
   @HttpCode(200)
   async webhookHandler(@Request() req, @Body() body) {
     console.log({ body });
-
-    if (body.event === 'transfer.success') {
-      console.log('transfer.success');
-      console.log({ body });
-    } else if (body.event === 'transaction.success') {
-    }
   }
 }

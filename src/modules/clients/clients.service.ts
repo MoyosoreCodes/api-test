@@ -18,4 +18,7 @@ export class ClientsService {
   async findOne(whereQuery: FindOptionsWhere<Client>) {
     return this.clientRepository.findOne({ where: whereQuery });
   }
+  async findAll() {
+    return await this.clientRepository.find();
+  }
 }

@@ -85,24 +85,24 @@ export class TransactionsController {
         disbursement_date: today,
         expected_payment_date: addDays(today, 7),
         reason: 'Loan',
-        amount_payable: amountDrawn * 0.7,
+        amount_payable: Number((amountDrawn * 0.7).toFixed(2)),
         financier: 'B54',
       };
 
       let financedTransactionsObj = {
         transaction_reference,
-        amount: amountDrawn * 0.5,
+        amount: Number((amountDrawn * 0.5).toFixed(2)),
         drawdown_id: activeDrawdown.data?.id,
         payments: [
           {
             disbursement_date: today,
             expected_payment_date: addDays(today, 7),
-            amount: amountDrawn * 0.5 * 0.7,
+            amount: Number((amountDrawn * 0.35).toFixed(2)),
           },
           {
             disbursement_date: today,
             expected_payment_date: addDays(today, 7),
-            amount: amountDrawn * 0.5 * 0.7,
+            amount: Number((amountDrawn * 0.35).toFixed(2)),
           },
         ],
       };

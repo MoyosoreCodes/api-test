@@ -157,7 +157,38 @@ export class TransactionsController {
   }
 
   @Post('/repayments')
-  async bulkRepayments() {}
+  async bulkRepayments() {
+    const pendingPayments = await this.paymentService.findPendingPayments();
+    let payments = [];
+    for (let pendingPayment of pendingPayments) {
+      payments.push({
+        transaction_reference: pendingPayment.transaction_reference,
+        amount: pendingPayment.amount_expected,
+      });
+    }
+
+    const { success, data } = await this.b54Service.bulkRepayments(payments);
+
+    if (success) {
+      for (let pendingPayment of pendingPayments) {
+        await this.paymentService.updatePendingPaymentAmount(
+          pendingPayment.id,
+          pendingPayment.amount_expected,
+        );
+
+        const newPaymentInfo = await this.paymentService.findById(
+          pendingPayment.id,
+        );
+        if (
+          !Number(newPaymentInfo.amount_expected) ||
+          Number(newPaymentInfo.amount_expected) === 0
+        ) {
+          await this.paymentService.completePayment(pendingPayment.id);
+        }
+      }
+    }
+    return { success, data };
+  }
 
   @Get()
   async fetchTransactions() {

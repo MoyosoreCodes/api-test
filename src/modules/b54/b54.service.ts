@@ -64,7 +64,10 @@ export class B54Service {
     try {
       const { data } = await this.axiosInstance.post(
         `financing/bulk-payment`,
-        payments,
+        {
+          customer_partner_id: this.customerPartnerId,
+          payments
+        },
       );
       return { success: true, message: data?.message, data: data.data };
     } catch (error) {

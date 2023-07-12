@@ -141,13 +141,16 @@ export class TransactionsController {
         amount_expected: amount_expected,
       });
 
-      this.paymentService.create({
-        transaction: newTransaction,
-        transaction_reference,
-        amount_paid: 0,
-        status: 'pending',
-        amount_expected: paymentAmount,
-      });
+      for (let payment of financedTransactionsObj.payments) {
+        this.paymentService.create({
+          transaction: newTransaction,
+          transaction_reference,
+          amount_paid: 0,
+          status: 'pending',
+          amount_expected: paymentAmount,
+        });
+      }
+
     }
 
     return await this.b54Service.registerTransactions(
@@ -167,7 +170,9 @@ export class TransactionsController {
       });
     }
 
-    const { success, data } = await this.b54Service.bulkRepayments(payments);
+    const { success, message, data } = await this.b54Service.bulkRepayments(
+      payments,
+    );
 
     if (success) {
       for (let pendingPayment of pendingPayments) {
@@ -187,7 +192,7 @@ export class TransactionsController {
         }
       }
     }
-    return { success, data };
+    return { success, message, data };
   }
 
   @Get()
